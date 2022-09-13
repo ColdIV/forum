@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Admin</h1>
+        <div class="d-flex justify-content-center flex-column">
+            <div>
+                <h2 class="text-center">Change permissions</h2>
+                <form method="POST" autocomplete="off" class="d-flex justify-content-center align-items-center">
+                    <div class="text-center">
+                        <label>{{ vars['selectedUser'][1]}}</label>
+                        <input class="w-100" type="text" id="permissions" name="permissions" placeholder="Permissions" value="{{vars['selectedUser'][5]}}"><br>
+                        <input class="button-warning w-100" type="submit" id="submit" name="submit" value="Submit">
+                    </div>
+                </form>
+                <hr class="mt-4">
+            </div>
+        </div>
+
+        {% include 'modules/permissions.html' %}
+</div>
+
+{% endblock %}

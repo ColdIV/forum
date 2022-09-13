@@ -1,0 +1,44 @@
+<nav class="navbar">
+    <div class="container w-100 d-flex flex-column flex-d-row justify-content-between justify-content-d-start">
+        <div class="d-flex justify-content-between w-100 w-d-auto">
+            <a href="/" class="logo">
+                <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo">
+            </a>
+            <a href="#" id="toggle-button" class="d-block d-d-none mr-1 unstyled-link">&#9776;</a>
+        </div>
+        <ul id="toggle-menu">
+            {% for n in vars['nav']: %}
+            <li>
+                {% if vars['active'] == n: %}
+                    {% set activeClass = 'active' %}
+                {% else: %}
+                    {% set activeClass = '' %}
+                {% endif %}
+
+                {% if n == "admin" and vars['action_required'] and vars['action_required'] > 0: %}
+                    <a class="{{activeClass}} unstyled-link action-required" data-action="{{vars['action_required']}}" href="/{{n}}">{{n}}</a>
+                {% else: %}
+                    <a class="{{activeClass}} unstyled-link" href="/{{n}}">{{n}}</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+            <li>
+                {% if vars['user']: %}
+                    <a class="unstyled-link" href="/logout">Logout</a>
+                {% else: %}
+                    <a class="unstyled-link" href="/login">Login</a>     
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+</nav>
+
+{% block navbar_script %}
+<script>
+    window.addEventListener("load", () => {
+        document.querySelector('#toggle-button').addEventListener('click', () => {
+            document.querySelector('#toggle-menu').classList.toggle("show")
+        })
+    });
+</script>
+{% endblock %}

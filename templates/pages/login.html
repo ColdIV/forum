@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}cldv{% endblock %}
+{% block body_class %}{% endblock %}
+{% block header %}{% endblock %}
+{% block main_class %}{% endblock %}
+{% block content %}
+
+<style>
+    main {
+        width: 100%;
+        height: 100%;
+    }
+
+</style>
+
+<div class="d-flex flex-column justify-content-between h-100">
+    <div class="d-flex justify-content-between">
+        <div class="m-1 d-flex align-items-start">
+            <h1 class="text-light">Forum</h1>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center flex-column">
+
+        <div id="logo-big" class="mb-1" style="width: 200px; height: 200px; background: #ccc;">TEST</div>
+
+        {% if vars['errors']: %}
+        <ul class="mx-1 mx-d-0 p-1 alert-danger unstyled-list flex-column">
+            {% for e in vars['errors']: %}
+                <li>{{e}}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form id="login-form" action="/login" method="post" class="d-flex flex-column w-70 w-d-auto">
+            <input type="text" placeholder="Username" name="username" required disabled>
+            <input type="password" placeholder="Password" name="password" required disabled>
+            <input type="submit" value="Submit" class="btn-primary" disabled>
+            <a id="register-link" href="#" tabindex="-1">Request Access</a>
+        </form>
+        
+        <form id="register-form" action="/register" method="post" class="d-flex flex-column w-70 w-d-auto">
+            <input type="email" placeholder="E-Mail" name="email" required disabled>
+            <input type="text" placeholder="Username" name="username" required disabled>
+            <input type="password" placeholder="Password" name="password" required disabled>
+            <input type="password" placeholder="Repeat Password" name="repeat_password" required disabled>
+            <input type="submit" value="Submit" class="btn-primary" disabled>
+            <a id="login-link" href="#" tabindex="-1">Back to Login</a>
+        </form>
+        
+    </div>
+
+    <div class="d-flex justify-content-between bg-light text-dark bg-d-dark font-weight-bold font-weight-d-normal">
+        <div class="m-1 d-flex align-items-center text-d-light">&copy; {{ vars['year'] }}</div>
+    </div>
+</div>
+
+<script>
+    var animationBlock = false
+
+    let toggleLoginForm = () => {
+        document.querySelector('#login-form').classList.toggle('show')
+    
+        setTimeout(() => {
+            let input = document.querySelectorAll('#login-form input')
+            for (let i = 0; i < input.length; ++i) {
+                input[i].disabled = !input[i].disabled
+            }
+
+            let link = document.querySelector('#register-link')
+            link.tabIndex = link.tabIndex * -1
+        }, 500)
+    }
+
+    let toggleRegisterForm = () => {
+        document.querySelector('#register-form').classList.toggle('show')
+    
+        setTimeout(() => {
+            let input = document.querySelectorAll('#register-form input')
+            for (let i = 0; i < input.length; ++i) {
+                input[i].disabled = !input[i].disabled
+            }
+
+            let link = document.querySelector('#login-link')
+            link.tabIndex = link.tabIndex * -1
+        }, 500)
+    }
+
+    let initEventListeners = () => {
+        document.querySelector('#logo-big').addEventListener('click', () => {
+            if (animationBlock) return
+            else animationBlock = true
+
+            if (document.querySelector('#register-form.show')) {
+                toggleRegisterForm()
+            } else {
+                toggleLoginForm()
+            }
+
+            setTimeout(() => { animationBlock = false }, 500)
+        })
+
+        document.querySelector('#register-link').addEventListener('click', () => {
+            if (animationBlock) return
+            else animationBlock = true
+            
+            toggleLoginForm()
+            setTimeout(toggleRegisterForm, 1000)
+
+            setTimeout(() => { animationBlock = false }, 1000)
+        })
+
+        document.querySelector('#login-link').addEventListener('click', () => {
+            if (animationBlock) return
+            else animationBlock = true
+            
+            toggleRegisterForm()
+            setTimeout(toggleLoginForm, 1000)
+
+            setTimeout(() => { animationBlock = false }, 1000)
+        })
+    }
+
+    window.addEventListener("load", () => { initEventListeners() });
+</script>
+
+{% endblock %}
+{% block footer %}
+{% endblock %}

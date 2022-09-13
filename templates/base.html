@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" href="{{ url_for('static',filename='images/favicon.png') }}"/>
+	<link rel="stylesheet" href="{{ url_for('static',filename='styles/styles-min.css') }}">
+
+    <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% block header %}
+    <header>
+        {% include 'partials/navbar.html' %}
+    </header>
+    {% endblock %}
+    <main class="{% block main_class %}mb-3{% endblock %}">
+        {% block content %}{% endblock %} 
+    </main>
+    {% block footer %}
+    <footer>
+        {% block footerContent %}
+        <div class="container d-flex justify-content-between bg-light text-dark font-weight-bold font-weight-d-normal">
+            <div class="d-flex align-items-center">&copy; {{ vars['year'] }}</div>
+        </div>
+        {% endblock %}
+    </footer>
+    {% endblock %}
+    {% block navbar_scripts %}{% endblock %}
+    {% block footer_scripts %}{% endblock %}
+</body>
+</html>

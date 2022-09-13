@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Forum{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Delete Post</h1>
+    <p class="alert-warning p-1">Are you sure you want to delete the <a class="text-dark" href="/topic?id={{vars['post'][0]}}#{{vars['post'][6]}}">post #{{vars['post'][6]}}</a>?</p>
+
+    <div class="d-flex justify-content-center w-50">
+        <div class="d-flex justify-content-between">
+            <a class="btn button-danger mr-1" href="/delete/post/{{vars['post'][0]}}/{{vars['post'][6]}}/confirm">Yes</a>
+            <a class="btn" href="/topic?id={{vars['post'][0]}}#{{vars['post'][6]}}">No</a>
+        </div>
+    </div>
+
+    <hr class="mt-4">
+    <div class="text-center w-100 mt-2">
+        <a class="btn" href="/topic?id={{vars['post'][0]}}#{{vars['post'][6]}}">Back</a>
+    </div>
+</div>
+
+{% endblock %}

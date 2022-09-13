@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Forum{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+<div class="container">
+    <h1 class="my-3 px-1 px-d-0">Forum</h1>
+    
+    {% include "partials/forum_header.html" %}
+
+    <div class="px-1 px-d-0 mb-5">
+        
+        {% if vars['errors']: %}
+        <ul class="p-1 alert-danger unstyled-list flex-column">
+            {% for e in vars['errors']: %}
+            <li>{{e}}</li>
+            {% endfor %}
+        </ul>
+        {% else: %}
+            {% if vars['res_top'] and not vars['res_top'] == -1: %}
+                {% for r in vars['res_top']: %}
+                <h1 class="mt-1 mb-1">
+                    {{r[1]}}
+                    {% if 'a' in vars['permissions'] or '*' in vars['permissions']: %}
+                    <span class="delete_topic"><a class="unstyled-link text-danger" title="Delete Topic" href="delete/topic/{{r[0]}}">&#10006;</a></span>
+                    {% endif %}
+                </h1>
+                {% endfor %}
+                {% if vars['res_posts'] and not vars['res_posts'] == -1: %}
+                    {% for r in vars['res_posts']: %}
+                        {% set topicId = r[0] %}
+                        {% set postContent = r[1] %}
+                        {% set postTime = r[2] %}
+                        {% set postUserId = r[4] %}
+                        {% set postUser = r[5] %}
+                        {% set postId = r[6] %}
+                        {% set postUserAvatar = r[7] %}
+                        {% include "modules/forum_post.html" %}
+                    {% endfor %}
+                {% endif %}
+                {% if vars['reply_content']: %}
+                    <div class="post self">
+                        <div class="post_info_container">
+                            <span class="post_info">
+                                <a class="post_id pr-1" href="#post{{vars['post_id']}}">#{{vars['post_id']}}</a>
+                                <span class="pr-1">|</span>
+                                <img src="{{vars['avatar']}}" class="pr-1" width="25px" height="25px">
+                                <strong class="pr-1">{{vars['user']}}</strong>
+                                <span>A second ago</span>
+                            </span>
+                        </div>
+                        <div class="post_content">{{vars['reply_content']}}</div>
+                    </div>
+                    {% endif %}
+                    {% if vars['access']: %}
+                    <form id="newPost" class="post-form" method="post" action="/topic?id={{vars['res_top'][0][0]}}#newPost">
+                        <div class="forum_form_container m-auto">
+                            <textarea name="reply_content" minlength="3" maxlength="2000" required></textarea>
+                            <input type="submit" value="Submit" />
+                        </div>
+                    </form>
+
+                    <div class="bg-light text-dark bbcode_info">
+                        <a href="#" id="toggle-bbcodes">
+                            <h3 class="py-1">BBCodes</h3>
+                        </a>
+                        <ul id="toggle-bbcode-list">
+                            <li>
+                                <div>[b]test[/b]</div>
+                                <div><strong>test</strong></div>
+                            </li>
+                            <li>
+                                <div>[i]test[/i]</div>
+                                <div><i>test</i></div>
+                            </li>
+                            <li>
+                                <div>[u]test[/u]</div>
+                                <div><u>test</u></div>
+                            </li>
+                            <li>
+                                <div>[s]test[/s]</div>
+                                <div><s>test</s></div>
+                            </li>
+                            <li>
+                                <div>[hr]</div>
+                                <div><hr></div>
+                            </li>
+                            <li>
+                                <div>x[sub]3[/sub]</div>
+                                <div>x<sub>3</sub></div>
+                            </li>
+                            <li>
+                                <div>x[sup]3[/sup]</div>
+                                <div>x<sup>3</sup></div>
+                            </li>
+                            <li>
+                                <div>[list][*] item[/list]</div>
+                                <div><ul><li>item</li></ul></div>
+                            </li>
+                            <li>
+                                <div>[quote]hello[/quote]</div>
+                                <div><blockquote>hello</blockquote></div>
+                            </li>
+                            <li>
+                                <div>[code]x = 3[/code]</div>
+                                <div><code>x = 3</code></div>
+                            </li>
+                            <li>
+                                <div>[center]hello[/center]</div>
+                                <div><span style="text-align:center;">hello</span></div>
+                            </li>
+                            <li>
+                                <div>[color=red]red[/color]</div>
+                                <div><span style="color:red;">red</span></div>
+                            </li>
+                            <li>
+                                <div>[url=cldv.org]cldv.org[/url]</div>
+                                <div><a href="cldv.org">cldv.org</a></div>
+                            </li>
+                        </ul> 
+                    </div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>    
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+<script>
+    window.addEventListener("load", () => {
+        document.querySelector('#toggle-bbcodes').addEventListener('click', (e) => {
+            e.preventDefault()
+            document.querySelector('#toggle-bbcode-list').classList.toggle("show")
+        })
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+*.sqlt
+*.pyc
+db/*.sqlt
+db/*.dat
+bin/*
+lib/*
+pyvenv.cfg
+Scripts/*
+env/*

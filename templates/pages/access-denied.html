@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Access denied{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+
+<div class="container">
+    <h1 class="my-3 px-1 px-d-0">Access denied</h1>
+    {% if vars['activate']: %}
+        <p class="alert-warning bg-dark p-1">Your request has yet to be approved.<br>This may take some time.</p>
+    {% else: %}
+        <p class="alert-warning bg-dark p-1">You don't have permission to access this page.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

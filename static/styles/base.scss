@@ -1,0 +1,77 @@
+// General Styles
+html {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background: $dark;
+	color: $light;
+	font-family: $font;
+	margin: 0;
+	min-width: fit-content;
+	height: 100%;
+
+	display: flex;
+	flex-flow: column;
+}
+
+footer {
+	background-color: $light;
+	color: $dark;
+	padding: 1rem;
+	margin-top: auto;
+}
+
+/* Input */
+form {
+	min-width: 150px;
+}
+
+input, select {
+	min-width: 100px;
+	padding: 0.5rem 1rem;
+	margin: 0.25rem 0;
+	outline-color: $primary;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+textarea {
+	box-sizing: border-box;
+	resize: none;
+	min-height: 100px;
+	margin-top: 5px;
+}
+
+/* Links */
+a {
+	color: $primary;
+	transition: color .5s;
+	text-decoration: none;
+
+	&:visited {
+		color: $primary;
+	}
+
+	&:hover {
+		color: $white;
+		text-decoration: underline;
+	}
+}
+
+/* Headlines */
+h1 {
+	color: $primary;
+}
+
+h1,h2,h3,h4 { margin: 0; padding-top: 1rem; margin-bottom: 2rem; }
+
+
+/* Desktop Styles */
+@media (min-width: 1200px) {
+	input, select {
+		width: auto;
+	}
+}

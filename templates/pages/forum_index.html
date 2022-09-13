@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Forum{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+
+<div class="container">
+    <h1 class="my-3 px-1 px-d-0">Forum</h1>
+    
+    {% include "partials/forum_header.html" %}
+
+    {% if vars['errors']: %}
+        <ul class="mx-1 mx-d-0 p-1 alert-danger unstyled-list flex-column">
+            {% for e in vars['errors']: %}
+                <li>{{e}}</li>
+            {% endfor %}
+        </ul>
+    {% else: %}
+        {% for r in vars['res']: %}
+            <table class="forum-overview w-100">
+                <tr class="w-100">
+                    <th class="left-cat">
+                        <a href="/category?id={{r[0]}}">{{r[1]}}</a>
+                        <br/><span class="light">{{r[2]}}</span>
+                    </th>
+                    <th class="right-cat">Last Post</th>
+                </tr>
+            {% for i in r[3]: %}
+                {% if i == -1: %}
+                    <tr>
+                        <td class="left-cat">Empty</td>
+                        <td class="right-cat">None</td>
+                    </tr>
+                {% else: %}
+                    {% for j in i: %}
+                    <tr>
+                        <td class="left-cat"><a href="/topic?id={{j[1]}}">{{j[2]}}</a></td>
+                        <td class="right-cat"><a href="/topic?id={{j[1]}}#post{{j[4]}}">by {{j[5]}}</a><br/>{{j[6]}}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+            </table>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

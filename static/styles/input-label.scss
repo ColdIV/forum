@@ -1,0 +1,47 @@
+.input-label {
+	position: relative;
+    display: table;
+	min-width: 100px;
+    width: 100%;
+    
+    &::after {
+        content:'';
+        top: 0;
+        opacity: 0;
+    }
+
+    &:focus-within::after,
+    &.show::after {
+        content: attr(data-label);
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: -20px;
+        width: 100px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background: $light;
+        color: $dark;
+        opacity: 1;
+        transition: opacity .5s;
+        text-align: center;
+        border-radius: 3px;
+        border-bottom-right-radius: 0;
+    }
+
+    &.show input,
+    &:focus-within input {
+        border: 2px solid $light;
+        border-radius: 3px;
+        border-top-right-radius: 0;
+        outline: none;
+    }
+}
+
+/* Desktop Styles */
+@media (min-width: 1200px) {
+    .input-label {
+        width: auto;
+    }
+}

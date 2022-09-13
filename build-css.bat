@@ -1,0 +1,1 @@
+python -m scss < static/styles/styles.scss -o static/styles/styles-min.css -I static/styles/

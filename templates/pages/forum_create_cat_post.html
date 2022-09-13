@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Forum{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Forum</h1>
+	{% include "partials/forum_header.html" %}
+
+	{% if vars['errors']: %}
+		<ul class="p-1 alert-danger unstyled-list flex-column">
+			{% for e in vars['errors']: %}
+				<li>{{e}}</li>
+			{% endfor %}
+		</ul>
+	{% else: %}
+		<div class="alert-success">New category successfully added.</div>
+	{% endif %}
+</div>
+
+{% endblock %}

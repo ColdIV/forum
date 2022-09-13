@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Forum{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Forum</h1>
+    {% include "partials/forum_header.html" %}
+
+    {% if vars['user'] == None: %}
+        Sorry, you have to be <a href="/signin">signed in</a> to create a topic.
+    {% else: %}
+        {% if vars['errors']: %}
+            <ul>
+            {% for e in vars['errors']: %}
+                <li>{{e}}</li>
+            </ul>
+            {% endfor %}
+        {% else: %}
+            <div class="center">
+                <div>
+                    <form method="post" action="" autocomplete="off">
+                        <div class="forum_form_container pt-2">
+                            <div class="d-flex flex-column flex-d-row mt-1">
+                                <div>
+                                    Category<br>
+                                    <select class="px-0 px-d-1" name="topic_cat">
+                                    {% for r in vars['res']: %}
+                                        <option value={{r[0]}}>{{r[1]}}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="ml-d-1 mt-1 mt-d-0">
+                                    Subject<br>
+                                    <input class="px-0 px-d-1" type="text" name="topic_subject" minlength="3" maxlength="50" autofocus required/>
+                                </div>
+                            </div>
+                            <div class="mt-1">
+                                Message<br>
+                                <textarea class="px-0 px-d-1" name="post_content" minlength="3" maxlength="2000" required></textarea>
+                            </div>
+                            <div class="mt-1">
+                                <input class="px-0 px-d-1" type="submit" value="Create topic" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

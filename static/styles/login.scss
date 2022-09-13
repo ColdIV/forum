@@ -1,0 +1,61 @@
+#logo-big {
+    width: 250px;
+    height: 250px;
+    cursor: pointer;
+    user-select: none;
+
+    @media (min-width: 1200px) {
+        width: 500px;
+        height: 500px;
+    }
+}
+
+#login-form,
+#register-form {
+    position: relative;
+    height: 2px;
+    padding-top: 4px;
+    overflow: hidden;
+    transition: height .5s cubic-bezier(0.445, 0.050, 0.550, 0.950);
+
+    @media (min-width: 1200px) {
+        width: 300px;
+    }
+
+    &::before {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        content: '';
+        width: 0px;
+        height: 2px;
+        background-color: $light;
+        opacity: 0;
+        transition: width .5s, opacity 0s;
+        transition-delay: .5s, 1s;
+    }
+    
+    &.show {
+        &::before {
+            width: 300px;
+            opacity: 1;
+            transition: opacity 0s, width .5s;
+        }
+        
+        height: 165px;
+        transition: height .5s cubic-bezier(0.215, 0.610, 0.355, 1.000);
+        transition-delay: .5s;
+    }
+
+    a {
+        margin-top: 8px;
+        text-align: center;
+    }
+}
+
+#register-form {
+    &.show {
+        height: 250px;
+    }
+}

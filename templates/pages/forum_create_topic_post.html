@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Forum{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Forum</h1>
+	{% include "partials/forum_header.html" %}
+
+	{% if vars['user'] == None: %}
+		Sorry, you have to be <a href="/signin">signed in</a> to create a topic.
+	{% else: %}
+		
+	{% endif %}
+
+	{% if vars['errors']: %}
+		<ul class="alert-danger unstyled-list flex-column">
+		{% for e in vars['errors']: %}
+			<li>{{e}}</li>
+		{% endfor %}
+		</ul>
+	{% else: %}
+		<div class="alert-success">
+			You have successfully created <a href="/topic?id={{ vars['topic_id'] }}">your new topic</a>
+		</div>
+	{% endif %}
+</div>
+
+{% endblock %}

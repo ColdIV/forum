@@ -1,0 +1,46 @@
+.btn {
+    padding: .5rem 1rem;
+    cursor: pointer;
+    color: $light;
+    background: $dark;
+    font-family: $font;
+    font-size: 16px;
+    border: 1px solid $light;
+    border-radius: 3px;
+    transition: background .5s, color .5s;
+    text-decoration: none;
+
+    &:hover {
+        background: $light;
+        color: $dark;
+        transition: background .5s, color .5s;
+        text-decoration: none;
+    }
+
+    &:active {
+        background: lighten($light, 5%);
+        color: $dark;
+    }
+}
+
+.btn-primary {
+	cursor: pointer;
+	color: $secondary;
+	background: $primary;
+	font-family: $font;
+	font-size: 16px;
+	border: 1px solid $primary;
+    border-radius: 3px;
+    text-decoration: none;
+    
+    &:hover {
+        background: $gray;
+        border-color: $gray;
+        text-decoration: none;
+    }
+    
+    &:active {
+        background: $white;
+        border-color: $white;
+    }
+}

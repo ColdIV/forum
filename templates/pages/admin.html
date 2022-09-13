@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Admin</h1>
+    <div class="d-flex flex-column flex-d-row w-100">
+        <div class="admin-container w-d-100">
+            <h2 class="m-1 text-center">Users</h2>
+            {% for u in vars['users']: %}
+                {% if 'a' in u[5]: %}
+                    {% set adminColor = 'text-success' %}
+                {% else: %}
+                    {% set adminColor = '' %}
+                {% endif %}
+                <div class="border-dark bg-light text-dark py-2 mb-2">
+                    <div class="px-1 d-flex justify-content-between">
+                        <strong>Name</strong>
+                        <div class="{{adminColor}}">
+                            {{u[1]}}
+                        </div>
+                    </div>
+                    <div class="px-1 d-flex justify-content-between">
+                        <strong>E-Mail</strong>
+                        <div>
+                            {{u[3]}}
+                        </div>
+                    </div>
+
+                    <div class="px-1 d-flex justify-content-between">
+                        <strong>Member since</strong>
+                        <div>
+                            {{u[4]}}
+                        </div>
+                    </div>
+                    {% if u[5]: %}
+                        <div class="pl-1 d-flex justify-content-between">
+                    {% else: %}
+                        <div class="pl-1 text-danger d-flex justify-content-between">
+                    {% endif %}
+                    <strong>Permissions</strong>
+                    <div class="pr-1 d-flex justify-content-between">
+                        <div>
+                            {% if u[5]: %}
+                            {{u[5]}}
+                            {% else: %}
+                            <!-- Or maybe a button? No clue. -->
+                            <a class="unstyled-link text-danger" href="admin/edit/permissions/{{u[0]}}">Add permissions</a>
+                            {% endif %}
+                        </div>
+                        <a class="unstyled-link text-dark pl-1" href="admin/edit/permissions/{{u[0]}}">&#9998;</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        {% include 'modules/permissions.html' %}
+
+    </div>
+</div>
+
+{% endblock %}

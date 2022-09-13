@@ -1,0 +1,30 @@
+{% set admin = False %}
+{% if 'a' in vars['permissions'] or '*' in vars['permissions']: %}
+    {% set admin = True %}
+{% endif %}
+{% if postUser == vars['user']: %}
+<div id="post{{r[6]}}" class="post self">
+{% else: %}
+<div id="post{{r[6]}}" class="post">
+{% endif %}
+    {% if topicSubject: %}
+    <span class="post_topic"><a class="text-inherit" href="topic?id={{r[0]}}#post{{r[6]}}">{{topicSubject}}</a></span>
+    {% endif %}
+    {% if admin: %}
+    <span class="delete_post"><a class="unstyled-link text-danger" title="Delete Post" href="delete/post/{{r[0]}}/{{r[6]}}">&#10006;</a></span>
+    {% endif %}
+    <div class="post_info_container">
+        <span class="post_info">
+            <a class="post_id pr-1" href="topic?id={{r[0]}}#post{{r[6]}}">#{{r[6]}}</a>
+            <span class="pr-1">|</span>
+            <img class="pr-1" src="{{postUserAvatar}}" width="25px" height="25px">
+            {% if postUser == vars['user']: %}
+                <strong class="pr-1">{{postUser}}</strong>
+            {% else: %}
+                <span class="pr-1">{{postUser}}</span>    
+            {% endif %}
+            <span>{{postTime}}</span>
+        </span>
+    </div>
+    <div class="post_content">{{postContent | safe}}</div>
+</div>

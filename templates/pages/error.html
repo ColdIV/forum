@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Error{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Error {{ vars['code'] }}</h1>
+    <div>
+        {% if vars['content']: %}
+        <p class="alert-warning p-1">{{ vars['content'] }}</p>
+        {% else: %}
+        <p class="alert-danger p-1">There is no error message for what you've done...</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

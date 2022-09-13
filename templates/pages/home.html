@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+
+<div class="container home-container px-d-1">
+    <h1 class="my-3 px-1 px-d-0">Home</h1>
+    <div class="d-flex flex-column-reverse flex-d-row justify-content-between">
+        <div class="w-d-100 px-1 px-d-0">
+
+            <h2 class="mb-2">Latest Posts</h2>
+            
+            {% if vars['res_posts']: %}
+                {% for r in vars['res_posts']: %}
+                    {% set topicId = r[0] %}
+                    {% set postContent = r[1] %}
+                    {% set postTime = r[2] %}
+                    {% set postUserId = r[4] %}
+                    {% set postUser = r[5] %}
+                    {% set postId = r[6] %}
+                    {% set topicSubject = r[7] %}
+                    {% set postUserAvatar = r[8] %}
+                    {% include "modules/forum_post.html" %}
+                {% endfor %}
+            {% else: %}
+                <p class="alert-danger p-1">There are no posts to show.</p>
+            {% endif %}
+        </div>
+
+        {% include "modules/sidebar.html" %}
+    </div>
+</div>
+
+{% endblock %}

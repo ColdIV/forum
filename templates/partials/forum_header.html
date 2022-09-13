@@ -1,0 +1,8 @@
+<div class="mt-2 nav-forum px-1 px-d-0">
+    <ul class="unstyled-list mt-1">
+        {% if 'a' in vars['permissions'] or '*' in vars['permissions']: %}
+            <li><a href="create_cat">create category</a></li>
+        {% endif %}
+        <li><a href="create_topic">create topic</a></li>
+    </ul>
+</div>
