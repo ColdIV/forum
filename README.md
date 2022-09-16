@@ -12,3 +12,7 @@ A simple forum.
     python3 app.py
     # Register admin on first run:
     python3 services/main_db.py
+    # If CSS has been changed, run:
+    python -m scss < static/styles/styles.scss -o static/styles/styles-min.css -I static/styles/
+    # Or, on Windows:
+    # build-css.bat
