@@ -1,73 +1,55 @@
-import sqlite3
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_, or_
 import hashlib
 
-dbfile = 'database/main.sqlt'
+db = SQLAlchemy()
 
-def createTableUsers():
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users (
-user_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-user_name VARCHAR(30) NOT NULL,
-user_pass VARCHAR(255) NOT NULL,
-user_email VARCHAR(255) NOT NULL,
-user_date DATETIME NOT NULL,
-user_permissions VARCHAR(255) NOT NULL,
-user_avatar VARCHAR(255) NOT NULL
-);''')
-    conn.commit()
-	
-def createTableCategories():
-	conn = sqlite3.connect(dbfile)
-	c = conn.cursor()
-	c.execute('''CREATE TABLE IF NOT EXISTS categories (
-cat_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-cat_name VARCHAR(255) NOT NULL,
-cat_description VARCHAR(255) NOT NULL,
-CONSTRAINT cat_name_unique UNIQUE (cat_name)
-);''')
-	conn.commit()
-	
-def createTableTopics():
-	conn = sqlite3.connect(dbfile)
-	c = conn.cursor()
-	c.execute('''CREATE TABLE IF NOT EXISTS topics (
-topic_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-topic_subject VARCHAR(255) NOT NULL,
-topic_date DATETIME NOT NULL,
-topic_cat INTEGER NOT NULL,
-topic_by INTEGER NOT NULL
-);''')
-	conn.commit()
-	
-def createTablePosts():
-	conn = sqlite3.connect(dbfile)
-	c = conn.cursor()
-	c.execute('''CREATE TABLE IF NOT EXISTS posts (
-post_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-post_content TEXT NOT NULL,
-post_date DATETIME NOT NULL,
-post_topic INTEGER NOT NULL,
-post_by INTEGER NOT NULL
-);''')
-	conn.commit()
+def init_db(app):
+    db.init_app(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=True)
+    password = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+    date = db.Column(db.Date, default=datetime.now())
+    permissions = db.Column(db.String(255))
+    avatar = db.Column(db.String(255))
+
+class Categories(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True)
+    description = db.Column(db.String(255))
+
+class Topics(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(255))
+    date = db.Column(db.Date, default=datetime.now())
+    category_id = db.Column(db.Integer) # foreign key to Category
+    author_id = db.Column(db.Integer) # foreign key to User
+
+class Posts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    date = db.Column(db.Date, default=datetime.now())
+    topic_id = db.Column(db.Integer) # foreign key to Topic
+    author_id = db.Column(db.Integer) # foreign key to User
+
 
 def registerUser(user_name, user_pass, user_email, user_permissions = ''):
-	conn = sqlite3.connect(dbfile)
-	c = conn.cursor()
 	user_avatar = 'https://www.gravatar.com/avatar/' + hashlib.md5(user_email.lower().encode('utf-8')).hexdigest()
-	c.execute('INSERT INTO users (user_name, user_pass, user_email, user_date, user_permissions, user_avatar) VALUES (?, ?, ?, DATETIME("NOW"), ?, ?);', 
-(user_name, hashlib.sha512(user_pass.encode('utf-8')).hexdigest(), user_email, user_permissions, user_avatar))
-	conn.commit()
+    new_user = User(name=user_name, password=user_pass, email=user_email, permissions=user_permissions, avatar=user_avatar)
+    db.session.add(new_user)
+    db.commit()
 
 def signIn(user_name, user_pass):
 	user_pass = user_pass.encode('utf-8')
-	conn = sqlite3.connect(dbfile)
-	c = conn.cursor()
-	res = c.execute('SELECT 1 FROM users WHERE user_name = ? AND user_pass = ?;', 
-(user_name, hashlib.sha512(user_pass).hexdigest())).fetchall()
-	conn.commit()
-	return res if res else 0
+    user = User.query.filter(name=user_name, password=hashlib.sha512(user_pass).hexdigest())
+
+    return 1 if user else 0
+
+# TODO:
 
 def getPermissions(name):
 	conn = sqlite3.connect(dbfile)

@@ -8,16 +8,20 @@ import sys
 from waitress import serve
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] ='database/main.sqlt'
+app.config['SECRET_KEY'] = 'example_key'
 SESSION_TYPE = 'redis'
 app.config.from_object(__name__)
 app.permanent_session_lifetime = timedelta(days=365)
 Session(app)
 
 import services.database as db
-
 import services.permissions as perm
 import services.navigation as nav
 import services.forum as f
+
+db.init_db(app)
 
 # create tables
 print ('[LOG] Create Tables')
