@@ -11,7 +11,7 @@ A simple forum.
     pip3 install -r requirements.txt
     python3 app.py
     # Register admin on first run:
-    python3 services/main_db.py
+    python3 services/database.py
     # If CSS has been changed, run:
     python -m scss < static/styles/styles.scss -o static/styles/styles-min.css -I static/styles/
     # Or, on Windows:
