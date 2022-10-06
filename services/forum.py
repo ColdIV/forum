@@ -50,7 +50,7 @@ def create_catPOST(session, vars):
         errors.append("The categorie description field must not be empty.")
 
     if not errors:
-        res = db.getCategorieByName(cat_name)
+        res = db.getCategoryByName(cat_name)
         if res == 1:
             errors.append("Couldn't create category.")
         else:
