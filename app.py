@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from flask import Flask, session, redirect, url_for, render_template, request, flash
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import hashlib
 
@@ -21,11 +22,14 @@ import services.permissions as perm
 import services.navigation as nav
 import services.forum as f
 
+db = SQLAlchemy(app)
+
+
 print ('[LOG] Create Tables')
-with app.app_context():
-    db.init_db(app)
-with app.app_context():
-    db.create_admin_user()
+# with app.app_context():
+#     db.init_db(app)
+# with app.app_context():
+#     db.create_admin_user()
 
 # Return values:
 # 0 - Error
