@@ -1,12 +1,13 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import and_, or_
 import hashlib
 
 db = SQLAlchemy()
 
 def init_db(app):
     db.init_app(app)
+    db.create_all()
+    db.session.commit()
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -154,7 +155,7 @@ def addPost(post_content, topic_id, user_id):
     return new_post.id
 
 def gettopicID(topic_subject, topic_cat, user_id):
-    topic = Topics.query.filter_by(subject: topic_subject, category_id=topic_cat, author_id=user_id).first()
+    topic = Topics.query.filter_by(subject=topic_subject, category_id=topic_cat, author_id=user_id).first()
 
     return topic.id if topic else -1
 
@@ -273,7 +274,7 @@ def updateAvatar(id, user_avatar):
     Users.query.filter_by(id=id).update(avatar=user_avatar)
     db.session.commit()
 
-if __name__ == "__main__":
+def create_admin_user():
     import getpass
     print ("Add user account: ")
     user_name = input("Please enter the username: ")

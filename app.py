@@ -9,7 +9,7 @@ from waitress import serve
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] ='database/main.sqlt'
+app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///database/main.sqlt'
 app.config['SECRET_KEY'] = 'example_key'
 SESSION_TYPE = 'redis'
 app.config.from_object(__name__)
@@ -21,12 +21,11 @@ import services.permissions as perm
 import services.navigation as nav
 import services.forum as f
 
-db.init_db(app)
-
-# create tables
 print ('[LOG] Create Tables')
-db.createTableUsers()
-db.createTables()
+with app.app_context():
+    db.init_db(app)
+with app.app_context():
+    db.create_admin_user()
 
 # Return values:
 # 0 - Error
