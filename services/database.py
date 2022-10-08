@@ -201,67 +201,79 @@ def getLastTopOfCat(cat_id):
     topic = Topics.query.filter_by(category_id = cat_id).order_by(Topics.date.desc()).limit(1)
     return (topic.id, topic.subject, topic.date) if topic else (-1, u'-', u'-')
 
-#TODO:
-
 def getLastTopicsOfCat(cat_id, n = 5):
-    db.session.query(Topics, Users, Posts).filter()
+    rows = db.session.query(Topics, Posts, Users).filter(
+        Topics.id == Posts.topic_id
+    ).filter(
+        Users.id == Posts.author_id
+    ).filter(
+        Topics.category_id == cat_id
+    ).order_by(Topics.date.desc()).limit(n)
 
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    c.execute("""SELECT topic_cat, topic_id, topic_subject, topic_date, 
-    (SELECT post_id FROM posts WHERE post_topic = topic_id ORDER BY post_id DESC LIMIT 1), 
-    (SELECT user_name FROM users WHERE user_id = (SELECT post_by FROM posts WHERE post_topic = topic_id ORDER BY post_id DESC LIMIT 1)), 
-    (SELECT post_date FROM posts WHERE post_topic = topic_id ORDER BY post_id DESC LIMIT 1) 
-    FROM topics WHERE topic_cat = ? ORDER BY topic_date DESC LIMIT ?""", (cat_id,n))
+    result = [(t.category_id, t.id, t.subject, t.date, p.id, u.name, p.date) for t, p, u in rows]
 
-    rows = c.fetchall()
-    return rows if rows else -1
+    return result if rows else -1
+
+    # c.execute("""SELECT topic_cat, topic_id, topic_subject, topic_date, 
+    # (SELECT post_id FROM posts WHERE post_topic = topic_id ORDER BY post_id DESC LIMIT 1), 
+    # (SELECT user_name FROM users WHERE user_id = (SELECT post_by FROM posts WHERE post_topic = topic_id ORDER BY post_id DESC LIMIT 1)), 
+    # (SELECT post_date FROM posts WHERE post_topic = topic_id ORDER BY post_id DESC LIMIT 1) 
+    # FROM topics WHERE topic_cat = ? ORDER BY topic_date DESC LIMIT ?""", (cat_id,n))
 
 def getPostsByTopID(id):
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    c.execute("SELECT posts.post_topic, posts.post_content, posts.post_date, posts.post_by, users.user_id, users.user_name, posts.post_id, users.user_avatar FROM posts LEFT JOIN users ON posts.post_by = users.user_id WHERE posts.post_topic = ?", (id,))
- 
-    rows = c.fetchall()
-    return rows if rows else -1
+    rows = db.session.query(Posts, Users).filter(
+        Posts.author_id == Users.id
+    ).filter(
+        Posts.category_id == id
+    )
 
-def getLastPosts():
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    c.execute("SELECT posts.post_topic, posts.post_content, posts.post_date, posts.post_by, users.user_id, users.user_name, posts.post_id, (SELECT topic_subject FROM topics WHERE topic_id = posts.post_topic), users.user_avatar FROM posts LEFT JOIN users ON posts.post_by = users.user_id ORDER BY posts.post_date DESC LIMIT 10")
+    result = [(p.topic, p.content, p.date, p.author_id, u.id, u.name, p.id, u.avatar) for p, u in rows]
 
-    rows = c.fetchall()
-    return rows if rows else -1
+    return result if rows else -1
+
+    # c.execute("SELECT posts.post_topic, posts.post_content, posts.post_date, posts.post_by, users.user_id, users.user_name, posts.post_id, users.user_avatar FROM posts LEFT JOIN users ON posts.post_by = users.user_id WHERE posts.post_topic = ?", (id,))
+
+def getLastPosts(n = 10):
+    rows = db.session.query(Posts, Topics, Users).filter_by(
+        Topics.id == Posts.topic_id
+    ).filter(
+        Posts.author_id == Users.id
+    ).order_by(Posts.date.desc()).limit(n)
+
+    result = [(p.topic_id, p.content, p.date, p.author_id, u.id, u.name, p.id, t.subject, u.avatar) for p, t, u in rows]
+
+    return result if rows else -1
+
+    # c.execute("SELECT posts.post_topic, posts.post_content, posts.post_date, posts.post_by,
+    # users.user_id, users.user_name, posts.post_id,
+    # (SELECT topic_subject FROM topics WHERE topic_id = posts.post_topic),
+    # users.user_avatar
+    # FROM posts LEFT JOIN users ON posts.post_by = users.user_id ORDER BY posts.post_date DESC LIMIT 10")
 
 def getUserId(user_name):
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    c.execute("SELECT user_id FROM users WHERE user_name = ?", (user_name,))
- 
-    rows = c.fetchall()
-    return rows[0][0] if rows else -1
+    user = Users.query.filter_by(name = user_name)
+
+    return user.id if user else -1
 
 def getPostById(id):
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    c.execute("SELECT posts.post_topic, posts.post_content, posts.post_date, posts.post_by, users.user_id, users.user_name, posts.post_id FROM posts LEFT JOIN users ON posts.post_by = users.user_id WHERE posts.post_id = ?", (id,))
- 
-    rows = c.fetchall()
-    return rows if rows else -1
+    rows = db.session.query(Posts, Users).filter(
+        Posts.author_id == Users.id
+    ).filter(
+        Posts.id == id
+    )
+
+    result = [(p.topic_id, p.content, p.date, p.author_id, u.id, u.name, p.id) for p, u in rows]
+
+    return result if rows else -1
+
+    # c.execute("SELECT posts.post_topic, posts.post_content, posts.post_date, posts.post_by, users.user_id, users.user_name, posts.post_id
+    # FROM posts LEFT JOIN users ON posts.post_by = users.user_id WHERE posts.post_id = ?", (id,))
 
 def updateAvatar(id, user_avatar):
-    conn = sqlite3.connect(dbfile)
-    c = conn.cursor()
-    c.execute('UPDATE users SET user_avatar = ? WHERE user_id = ?;', (user_avatar, id))
-    conn.commit()
-
-def createTables():
-    createTableCategories()
-    createTableTopics()
-    createTablePosts()
+    Users.query.filter_by(id=id).update(avatar=user_avatar)
+    db.session.commit()
 
 if __name__ == "__main__":
-    createTableUsers()
     import getpass
     print ("Add user account: ")
     user_name = input("Please enter the username: ")
