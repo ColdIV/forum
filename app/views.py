@@ -1,35 +1,23 @@
 #!/usr/bin/env python
+
+print ("views.py")
+
 from flask import Flask, session, redirect, url_for, render_template, request, flash
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import hashlib
 
-import sys
-from waitress import serve
+from app import app
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///database/main.sqlt'
-app.config['SECRET_KEY'] = 'example_key'
-SESSION_TYPE = 'redis'
-app.config.from_object(__name__)
-app.permanent_session_lifetime = timedelta(days=365)
-Session(app)
-
-import services.database as db
-import services.permissions as perm
-import services.navigation as nav
-import services.forum as f
-
-db = SQLAlchemy(app)
+import app.database as db
+import app.permissions as perm
+import app.navigation as nav
+import app.forum as f
 
 
 print ('[LOG] Create Tables')
-# with app.app_context():
-#     db.init_db(app)
-# with app.app_context():
-#     db.create_admin_user()
+db.init_db(app)
 
 # Return values:
 # 0 - Error
@@ -81,7 +69,7 @@ def getDefaultVars():
         vars['permissions'] = db.getPermissions(vars['user'])
         vars['userid'] = db.getIDFromName(vars['user'])
         tmpUser = db.getUserByID(vars['userid'])
-        vars['avatar'] = getAvatar(tmpUser[3])
+        vars['avatar'] = getAvatar(tmpUser.avatar)
         vars['action_required'] = 0
         if not type (vars['permissions']) == int and ('a' in vars['permissions'] or '*' in vars['permissions']):
             vars['action_required'] = db.getActionRequired()
@@ -429,11 +417,3 @@ def error404(error):
     vars['active'] = ''
 
     return render_template('pages/error.html', vars=vars), 404
-
-if __name__ == '__main__':
-    if len(sys.argv) >= 2 and sys.argv[1] == 'dev':
-        print ('[LOG] Run development server')
-        app.run(debug=True)
-    else:
-        print ('[LOG] Run production server')
-        serve(app, host='0.0.0.0', port=8080)

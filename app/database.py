@@ -1,12 +1,19 @@
+print ("database.py")
+
+
 from app import db
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 import hashlib
 
 def init_db(app):
-    db.init_app(app)
-    db.create_all()
-    db.session.commit()
+    with app.app_context():
+        db.init_app(app)
+        db.create_all()
+        db.session.commit()
+        # Check for admin user (should always be first)
+        if getUserByID(1) == -1:
+            create_admin_user()
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,7 +52,7 @@ def registerUser(user_name, user_pass, user_email, user_permissions = ''):
 
 def signIn(user_name, user_pass):
     user_pass = user_pass.encode('utf-8')
-    user = Users.query.filter(name=user_name, password=hashlib.sha512(user_pass).hexdigest())
+    user = Users.query.filter_by(name=user_name, password=hashlib.sha512(user_pass).hexdigest())
 
     return 1 if user else 0
 
@@ -234,7 +241,7 @@ def getPostsByTopID(id):
     # c.execute("SELECT posts.post_topic, posts.post_content, posts.post_date, posts.post_by, users.user_id, users.user_name, posts.post_id, users.user_avatar FROM posts LEFT JOIN users ON posts.post_by = users.user_id WHERE posts.post_topic = ?", (id,))
 
 def getLastPosts(n = 10):
-    rows = db.session.query(Posts, Topics, Users).filter_by(
+    rows = db.session.query(Posts, Topics, Users).filter(
         Topics.id == Posts.topic_id
     ).filter(
         Posts.author_id == Users.id

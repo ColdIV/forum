@@ -1,6 +1,6 @@
 from flask import Flask, session, redirect, url_for, render_template, request, flash
 
-import services.database as db
+import app.database as db
 
 from markupsafe import escape, Markup
 import bbcode
