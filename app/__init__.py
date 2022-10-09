@@ -12,7 +12,8 @@ app.config.from_object(__name__)
 app.permanent_session_lifetime = timedelta(days=365)
 Session(app)
 
-db = SQLAlchemy(app)
+# db will be initialized later
+db = SQLAlchemy()
 
 from app import views
 # from app import database
