@@ -1,1 +1,1 @@
-python app.py dev
+python run.py dev

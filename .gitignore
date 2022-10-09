@@ -7,3 +7,5 @@ lib/*
 pyvenv.cfg
 Scripts/*
 env/*
+flask_session/*
+instance/*

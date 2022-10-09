@@ -1,30 +1,20 @@
 #!/usr/bin/env python
 from flask import Flask, session, redirect, url_for, render_template, request, flash
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import hashlib
 
-import sys
-from waitress import serve
+from app import app
 
-app = Flask(__name__)
-SESSION_TYPE = 'redis'
-app.config.from_object(__name__)
-app.permanent_session_lifetime = timedelta(days=365)
-Session(app)
+import app.database as db
+import app.permissions as perm
+import app.navigation as nav
+import app.forum as f
 
-import services.main_db as m_db
-import services.forum_database as f_db
 
-import services.permissions as perm
-import services.navigation as nav
-import services.forum as f
-
-# create tables
 print ('[LOG] Create Tables')
-m_db.createTableUsers()
-m_db.createTableNews()
-f_db.createTables()
+db.init_db(app)
 
 # Return values:
 # 0 - Error
@@ -33,7 +23,7 @@ f_db.createTables()
 # 3 - Denied redirect
 def checkAccess(requiredPermission = '+', redir = True):
     if session.get('access') == 'true' and session.get('name'):
-        userPermissions = m_db.getPermissions(session['name'])
+        userPermissions = db.getPermissions(session['name'])
         if  not (type (userPermissions) == int) and (requiredPermission in userPermissions or ('*' in userPermissions)):
             return 1
         else: return 3
@@ -52,7 +42,7 @@ def getNav():
     sites = nav.getSites()
 
     if session.get('access') == 'true' and session.get('name'):
-        userPermissions = m_db.getPermissions(session['name'])
+        userPermissions = db.getPermissions(session['name'])
         if (type (userPermissions) == int):
             return []
         for key in permissions:
@@ -73,13 +63,13 @@ def getDefaultVars():
     vars['nav'] = getNav()
     if session.get('name'):
         vars['user'] = session['name'] 
-        vars['permissions'] = m_db.getPermissions(vars['user'])
-        vars['userid'] = m_db.getIDFromName(vars['user'])
-        tmpUser = m_db.getUserByID(vars['userid'])
-        vars['avatar'] = getAvatar(tmpUser[3])
+        vars['permissions'] = db.getPermissions(vars['user'])
+        vars['userid'] = db.getIDFromName(vars['user'])
+        tmpUser = db.getUserByID(vars['userid'])
+        vars['avatar'] = getAvatar(tmpUser.avatar)
         vars['action_required'] = 0
         if not type (vars['permissions']) == int and ('a' in vars['permissions'] or '*' in vars['permissions']):
-            vars['action_required'] = m_db.getActionRequired()
+            vars['action_required'] = db.getActionRequired()
             if vars['action_required'] > 9:
                 vars['action_required'] = 9
 
@@ -102,7 +92,7 @@ def index():
     vars['active'] = 'home'
 
 	#forum
-    res_posts = f_db.getLastPosts()
+    res_posts = db.getLastPosts()
     if res_posts == -1 or res_posts == 0:
         res_posts = None
     vars['res_posts'] = res_posts
@@ -127,10 +117,10 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username and password and m_db.signIn(username, password):
+        if username and password and db.signIn(username, password):
             session['access'] = 'true'
             session['name'] = username
-            session['id'] = m_db.getIDFromName(username)
+            session['id'] = db.getIDFromName(username)
             return redirect('/')
         else:
             vars['error'] = True
@@ -162,13 +152,13 @@ def register():
             errors.append('Your username may not exceed 20 characters.')
         if not password == repeat_password:
             errors.append('Passwords do not match.')
-        if m_db.userInDB(username)[0]:
+        if db.userInDB(username) == 1:
             errors.append('User already exists.')
 
         vars['errors'] = errors
 
         if not errors:
-            m_db.registerUser(username, password, email)
+            db.registerUser(username, password, email)
             session['access'] = 'true'
             session['name'] = username
 
@@ -185,7 +175,7 @@ def denied():
 	vars['title'] = '403'
 	vars['active'] = ''
 
-	userPermissions = m_db.getPermissions(session['name'])
+	userPermissions = db.getPermissions(session['name'])
 	vars['activate'] = False
 	if  (type (userPermissions) == int):
 		vars['activate'] = True
@@ -207,7 +197,7 @@ def admin():
     vars['headline'] = 'Admin'
     vars['title'] = 'Admin'
         
-    vars['users'] = m_db.getUsers()
+    vars['users'] = db.getUsers()
 
     vars['errors'] = errors
     vars['active'] = 'admin'
@@ -232,7 +222,7 @@ def adminEditPermissions(id):
         vars['headline'] = 'Admin'
         vars['title'] = 'Admin'
 
-        vars['selectedUser'] = m_db.getUserByID(id)
+        vars['selectedUser'] = db.getUserByID(id)
 
         vars['errors'] = errors
         vars['active'] = 'admin'
@@ -242,7 +232,7 @@ def adminEditPermissions(id):
     if request.method == 'POST':
         permissions = request.form.get('permissions')
 
-        m_db.updatePermissions(id, permissions)
+        db.updatePermissions(id, permissions)
         print ('[LOG] Permissions for User with ID ' + str(id) + ' have been updated')
         
         return redirect('/admin')
@@ -340,7 +330,7 @@ def deletePost(topicId, postId):
         vars = getDefaultVars()
         return render_template('pages/access-denied.html', vars=vars)
 
-    post = f_db.getPostById(postId)
+    post = db.getPostById(postId)
 
     vars = getDefaultVars()
     vars['post'] = post[0]
@@ -368,10 +358,10 @@ def deleteTopic(topicId):
         vars = getDefaultVars()
         return render_template('pages/access-denied.html', vars=vars)
 
-    topic = f_db.getTopicByID(topicId)
+    topic = db.getTopicByID(topicId)
 
     vars = getDefaultVars()
-    vars['topic'] = topic[0]
+    vars['topic'] = topic
     vars['active'] = 'forum'
     vars['title'] = 'Forum'
 
@@ -424,11 +414,3 @@ def error404(error):
     vars['active'] = ''
 
     return render_template('pages/error.html', vars=vars), 404
-
-if __name__ == '__main__':
-    if len(sys.argv) >= 2 and sys.argv[1] == 'dev':
-        print ('[LOG] Run development server')
-        app.run(debug=True)
-    else:
-        print ('[LOG] Run production server')
-        serve(app, host='0.0.0.0', port=8080)

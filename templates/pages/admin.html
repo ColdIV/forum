@@ -9,7 +9,7 @@
         <div class="admin-container w-d-100">
             <h2 class="m-1 text-center">Users</h2>
             {% for u in vars['users']: %}
-                {% if 'a' in u[5]: %}
+                {% if 'a' in u.permissions: %}
                     {% set adminColor = 'text-success' %}
                 {% else: %}
                     {% set adminColor = '' %}
@@ -18,23 +18,23 @@
                     <div class="px-1 d-flex justify-content-between">
                         <strong>Name</strong>
                         <div class="{{adminColor}}">
-                            {{u[1]}}
+                            {{u.name}}
                         </div>
                     </div>
                     <div class="px-1 d-flex justify-content-between">
                         <strong>E-Mail</strong>
                         <div>
-                            {{u[3]}}
+                            {{u.email}}
                         </div>
                     </div>
 
                     <div class="px-1 d-flex justify-content-between">
                         <strong>Member since</strong>
                         <div>
-                            {{u[4]}}
+                            {{u.date}}
                         </div>
                     </div>
-                    {% if u[5]: %}
+                    {% if u.permissions: %}
                         <div class="pl-1 d-flex justify-content-between">
                     {% else: %}
                         <div class="pl-1 text-danger d-flex justify-content-between">
@@ -42,14 +42,14 @@
                     <strong>Permissions</strong>
                     <div class="pr-1 d-flex justify-content-between">
                         <div>
-                            {% if u[5]: %}
-                            {{u[5]}}
+                            {% if u.permissions: %}
+                            {{u.permissions}}
                             {% else: %}
                             <!-- Or maybe a button? No clue. -->
-                            <a class="unstyled-link text-danger" href="admin/edit/permissions/{{u[0]}}">Add permissions</a>
+                            <a class="unstyled-link text-danger" href="admin/edit/permissions/{{u.id}}">Add permissions</a>
                             {% endif %}
                         </div>
-                        <a class="unstyled-link text-dark pl-1" href="admin/edit/permissions/{{u[0]}}">&#9998;</a>
+                        <a class="unstyled-link text-dark pl-1" href="admin/edit/permissions/{{u.id}}">&#9998;</a>
                     </div>
                 </div>
             </div>
