@@ -10,8 +10,8 @@
                 <h2 class="text-center">Change permissions</h2>
                 <form method="POST" autocomplete="off" class="d-flex justify-content-center align-items-center">
                     <div class="text-center">
-                        <label>{{ vars['selectedUser'][1]}}</label>
-                        <input class="w-100" type="text" id="permissions" name="permissions" placeholder="Permissions" value="{{vars['selectedUser'][5]}}"><br>
+                        <label>{{ vars['selectedUser'].name}}</label>
+                        <input class="w-100" type="text" id="permissions" name="permissions" placeholder="Permissions" value="{{vars['selectedUser'].permissions}}"><br>
                         <input class="button-warning w-100" type="submit" id="submit" name="submit" value="Submit">
                     </div>
                 </form>

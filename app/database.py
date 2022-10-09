@@ -68,7 +68,7 @@ def getPermissionsByID(id):
     return user.permissions if user.permissions else -1
 
 def updatePermissions(id, permissions):
-    Users.query.filter_by(id=id).update(permissions=permissions)
+    Users.query.filter_by(id=id).update(dict(permissions=permissions))
     db.session.commit()
 
 # get amount of users that need to be activated
@@ -274,7 +274,7 @@ def getPostById(id):
     # FROM posts LEFT JOIN users ON posts.post_by = users.user_id WHERE posts.post_id = ?", (id,))
 
 def updateAvatar(id, user_avatar):
-    Users.query.filter_by(id=id).update(avatar=user_avatar)
+    Users.query.filter_by(id=id).update(dict(avatar=user_avatar))
     db.session.commit()
 
 def create_admin_user():
