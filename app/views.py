@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-print ("views.py")
-
 from flask import Flask, session, redirect, url_for, render_template, request, flash
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
