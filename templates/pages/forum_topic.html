@@ -18,14 +18,12 @@
         </ul>
         {% else: %}
             {% if vars['res_top'] and not vars['res_top'] == -1: %}
-                {% for r in vars['res_top']: %}
                 <h1 class="mt-1 mb-1">
-                    {{r[1]}}
+                    {{vars['res_top'].name}}
                     {% if 'a' in vars['permissions'] or '*' in vars['permissions']: %}
-                    <span class="delete_topic"><a class="unstyled-link text-danger" title="Delete Topic" href="delete/topic/{{r[0]}}">&#10006;</a></span>
+                    <span class="delete_topic"><a class="unstyled-link text-danger" title="Delete Topic" href="delete/topic/{{vars['res_top'].id}}">&#10006;</a></span>
                     {% endif %}
                 </h1>
-                {% endfor %}
                 {% if vars['res_posts'] and not vars['res_posts'] == -1: %}
                     {% for r in vars['res_posts']: %}
                         {% set topicId = r[0] %}
@@ -53,7 +51,7 @@
                     </div>
                     {% endif %}
                     {% if vars['access']: %}
-                    <form id="newPost" class="post-form" method="post" action="/topic?id={{vars['res_top'][0][0]}}#newPost">
+                    <form id="newPost" class="post-form" method="post" action="/topic?id={{vars['res_top'].id}}#newPost">
                         <div class="forum_form_container m-auto">
                             <textarea name="reply_content" minlength="3" maxlength="2000" required></textarea>
                             <input type="submit" value="Submit" />

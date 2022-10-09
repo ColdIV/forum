@@ -27,7 +27,7 @@
                                     Category<br>
                                     <select class="px-0 px-d-1" name="topic_cat">
                                     {% for r in vars['res']: %}
-                                        <option value={{r[0]}}>{{r[1]}}</option>
+                                        <option value={{r.id}}>{{r.name}}</option>
                                     {% endfor %}
                                     </select>
                                 </div>

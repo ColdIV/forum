@@ -152,7 +152,7 @@ def register():
             errors.append('Your username may not exceed 20 characters.')
         if not password == repeat_password:
             errors.append('Passwords do not match.')
-        if db.userInDB(username)[0]:
+        if db.userInDB(username) == 1:
             errors.append('User already exists.')
 
         vars['errors'] = errors
@@ -361,7 +361,7 @@ def deleteTopic(topicId):
     topic = db.getTopicByID(topicId)
 
     vars = getDefaultVars()
-    vars['topic'] = topic[0]
+    vars['topic'] = topic
     vars['active'] = 'forum'
     vars['title'] = 'Forum'
 

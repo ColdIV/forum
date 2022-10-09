@@ -17,7 +17,7 @@ class Users(db.Model):
     name = db.Column(db.String(30), unique=True)
     password = db.Column(db.String(255))
     email = db.Column(db.String(255))
-    date = db.Column(db.Date, default=datetime.now())
+    date = db.Column(db.DateTime, default=datetime.now())
     permissions = db.Column(db.String(255))
     avatar = db.Column(db.String(255))
 
@@ -29,21 +29,21 @@ class Categories(db.Model):
 class Topics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(255))
-    date = db.Column(db.Date, default=datetime.now())
+    date = db.Column(db.DateTime, default=datetime.now())
     category_id = db.Column(db.Integer) # foreign key to Category
     author_id = db.Column(db.Integer) # foreign key to User
 
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text)
-    date = db.Column(db.Date, default=datetime.now())
+    date = db.Column(db.DateTime, default=datetime.now())
     topic_id = db.Column(db.Integer) # foreign key to Topic
     author_id = db.Column(db.Integer) # foreign key to User
 
 
 def registerUser(user_name, user_pass, user_email, user_permissions = ''):
     user_avatar = 'https://www.gravatar.com/avatar/' + hashlib.md5(user_email.lower().encode('utf-8')).hexdigest()
-    new_user = Users(name=user_name, password=user_pass, email=user_email, permissions=user_permissions, avatar=user_avatar)
+    new_user = Users(name=user_name, password=user_pass, email=user_email, permissions=user_permissions, avatar=user_avatar, date=datetime.now())
     db.session.add(new_user)
     db.session.commit()
 
@@ -146,12 +146,12 @@ def getCategoryByName(name):
     return 1 if category else 0
 
 def createTopic(topic_subject, topic_cat, user_id):
-    new_topic = Topics(subject=topic_subject, category_id=topic_cat, author_id=user_id)
+    new_topic = Topics(subject=topic_subject, category_id=topic_cat, author_id=user_id, date=datetime.now())
     db.session.add(new_topic)
     db.session.commit()
 
 def addPost(post_content, topic_id, user_id):
-    new_post = Posts(content=post_content, topic_id=topic_id, author_id=user_id)
+    new_post = Posts(content=post_content, topic_id=topic_id, author_id=user_id, date=datetime.now())
     db.session.add(new_post)
     db.session.commit()
 
@@ -173,27 +173,25 @@ def getTopicByCatID(id):
     return topic if topic else -1
 
 def getTopicByID(id):
-    topic = Topics.query.filter_by(id=id)
+    topic = Topics.query.filter_by(id=id).first()
 
     return topic if topic else -1
 
 def deletePostByID(id):
-    post = Posts.query.filter_by(id=id)
-    count_posts_in_topic = Posts.query.filter_by(topic_id = post.topic_id).count()
+    post = Posts.query.filter_by(id=id).first()
+    count_posts_in_topic = Posts.query.filter_by(topic_id=post.topic_id).count()
 
     if post and count_posts_in_topic > 1:
         db.session.delete(post)
         db.session.commit()
 
 def deleteAllPostsOfTopic(id):
-    posts = Posts.query.filter_by(topic_id=id)
-    db.session.delete(posts)
+    Posts.query.filter_by(topic_id=id).delete()
     db.session.commit()
 
 def deleteTopicByID(id):
     deleteAllPostsOfTopic(id)
-    topic = Topics.query.filter_by(id=id)
-    db.session.delete(topic)
+    Topics.query.filter_by(id=id).delete()
     db.session.commit()
 
 def getTopicInCatBySubject(category_id, topic_subject):
@@ -206,17 +204,30 @@ def getLastTopOfCat(cat_id):
     return (topic.id, topic.subject, topic.date) if topic else (-1, u'-', u'-')
 
 def getLastTopicsOfCat(cat_id, n = 5):
-    rows = db.session.query(Topics, Posts, Users).filter(
-        Topics.id == Posts.topic_id
-    ).filter(
-        Users.id == Posts.author_id
-    ).filter(
-        Topics.category_id == cat_id
-    ).order_by(Topics.date.desc()).limit(n)
+    topics = Topics.query.filter_by(category_id=cat_id).order_by(Topics.date.desc()).limit(n)
+    rows = []
+    for topic in topics:
+        post = Posts.query.filter_by(topic_id=topic.id).order_by(Posts.id).limit(1).first()
+        if not post:
+            continue
+        user = Users.query.filter_by(id=post.author_id).first()
+        if not user:
+            continue
+        rows.append((topic.category_id, topic.id, topic.subject, topic.date, post.id, user.name, post.date))
 
-    result = [(t.category_id, t.id, t.subject, t.date, p.id, u.name, p.date) for t, p, u in rows]
+    return rows if topics else -1
 
-    return result if rows else -1
+    # rows = db.session.query(Topics, Posts, Users).filter(
+    #     Topics.id == Posts.topic_id
+    # ).filter(
+    #     Users.id == Posts.author_id
+    # ).filter(
+    #     Topics.category_id == cat_id
+    # ).order_by(Topics.date.desc()).limit(n)
+
+    # result = [(t.category_id, t.id, t.subject, t.date, p.id, u.name, p.date) for t, p, u in rows]
+
+    # return result if rows else -1
 
     # c.execute("""SELECT topic_cat, topic_id, topic_subject, topic_date, 
     # (SELECT post_id FROM posts WHERE post_topic = topic_id ORDER BY post_id DESC LIMIT 1), 
@@ -228,10 +239,10 @@ def getPostsByTopID(id):
     rows = db.session.query(Posts, Users).filter(
         Posts.author_id == Users.id
     ).filter(
-        Posts.category_id == id
+        Posts.topic_id == id
     )
 
-    result = [(p.topic, p.content, p.date, p.author_id, u.id, u.name, p.id, u.avatar) for p, u in rows]
+    result = [(p.topic_id, p.content, p.date, p.author_id, u.id, u.name, p.id, u.avatar) for p, u in rows]
 
     return result if rows else -1
 

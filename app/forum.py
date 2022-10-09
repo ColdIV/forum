@@ -19,7 +19,7 @@ def forum(session, vars):
         for i,r in enumerate(res):
             topics = list()
             topics.append(db.getLastTopicsOfCat(r.id))
-            res[i] = (r.id, r.name, r.description,topics)
+            res[i] = (r.id, r.name, r.description, topics)
     
     vars['errors'] = errors
     vars['access'] = session['access'] or None
