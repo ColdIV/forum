@@ -18,8 +18,8 @@ def forum(session, vars):
     if not errors:
         for i,r in enumerate(res):
             topics = list()
-            topics.append(db.getLastTopicsOfCat(r[0]))
-            res[i] = (r[0],r[1],r[2],topics)
+            topics.append(db.getLastTopicsOfCat(r.id))
+            res[i] = (r.id, r.name, r.description,topics)
     
     vars['errors'] = errors
     vars['access'] = session['access'] or None
