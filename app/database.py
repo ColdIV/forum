@@ -42,7 +42,7 @@ class Posts(db.Model):
 
 
 def registerUser(user_name, user_pass, user_email, user_permissions = ''):
-    user_avatar = 'https://www.gravatar.com/avatar/' + hashlib.md5(user_email.lower().encode('utf-8')).hexdigest()
+    user_avatar = 'static/images/default-avatar.jpg'
     new_user = Users(name=user_name, password=user_pass, email=user_email, permissions=user_permissions, avatar=user_avatar, date=datetime.now())
     db.session.add(new_user)
     db.session.commit()

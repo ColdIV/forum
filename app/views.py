@@ -52,9 +52,6 @@ def getNav():
 
     return userNav
 
-def getAvatar(email):
-    return 'https://www.gravatar.com/avatar/' + hashlib.md5(email.lower().encode('utf-8')).hexdigest()
-
 def getDefaultVars():
     vars = {}
     vars['year'] = datetime.today().year
@@ -66,7 +63,10 @@ def getDefaultVars():
         vars['permissions'] = db.getPermissions(vars['user'])
         vars['userid'] = db.getIDFromName(vars['user'])
         tmpUser = db.getUserByID(vars['userid'])
-        vars['avatar'] = getAvatar(tmpUser.avatar)
+        if tmpUser == -1:
+            vars['avatar'] = 'static/images/default-avatar.jpg'
+        else:
+            vars['avatar'] = tmpUser.avatar
         vars['action_required'] = 0
         if not type (vars['permissions']) == int and ('a' in vars['permissions'] or '*' in vars['permissions']):
             vars['action_required'] = db.getActionRequired()
