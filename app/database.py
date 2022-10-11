@@ -1,6 +1,7 @@
 from app import db
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 import hashlib
 
 def init_db(app):
@@ -12,7 +13,7 @@ def init_db(app):
         if getUserByID(1) == -1:
             create_admin_user()
 
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=True)
     password = db.Column(db.String(255))
@@ -42,16 +43,19 @@ class Posts(db.Model):
 
 
 def registerUser(user_name, user_pass, user_email, user_permissions = ''):
+    user_pass = user_pass.encode('utf-8')
+    user_pass=hashlib.sha512(user_pass).hexdigest()
     user_avatar = 'static/images/default-avatar.jpg'
     new_user = Users(name=user_name, password=user_pass, email=user_email, permissions=user_permissions, avatar=user_avatar, date=datetime.now())
     db.session.add(new_user)
     db.session.commit()
+    return new_user
 
 def signIn(user_name, user_pass):
     user_pass = user_pass.encode('utf-8')
-    user = Users.query.filter_by(name=user_name, password=hashlib.sha512(user_pass).hexdigest())
+    user = Users.query.filter_by(name=user_name, password=hashlib.sha512(user_pass).hexdigest()).first()
 
-    return 1 if user else 0
+    return user if user else 0
 
 def getPermissions(name):
     user = Users.query.filter_by(name=name).first()
