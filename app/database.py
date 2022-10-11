@@ -211,7 +211,7 @@ def getLastTopicsOfCat(cat_id, n = 5):
     topics = Topics.query.filter_by(category_id=cat_id).order_by(Topics.date.desc()).limit(n)
     rows = []
     for topic in topics:
-        post = Posts.query.filter_by(topic_id=topic.id).order_by(Posts.id).limit(1).first()
+        post = Posts.query.filter_by(topic_id=topic.id).order_by(Posts.id.desc()).limit(1).first()
         if not post:
             continue
         user = Users.query.filter_by(id=post.author_id).first()
