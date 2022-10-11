@@ -1,5 +1,5 @@
 # Forum
-A simple web forum written in Python and styled using SCSS.
+A simple web forum written in Python.
 
 ## Features
 
