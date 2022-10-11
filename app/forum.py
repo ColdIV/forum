@@ -1,4 +1,7 @@
-from flask import Flask, session, redirect, url_for, render_template, request, flash
+from flask import redirect, url_for, render_template, request, flash
+from flask_login import UserMixin, LoginManager, current_user, login_user, logout_user, login_required
+
+
 
 import app.database as db
 
@@ -6,7 +9,7 @@ from markupsafe import escape, Markup
 import bbcode
 parser = bbcode.Parser(url_template='<a href="{href}" target="_blank">{text}</a>')
 
-def forum(session, vars):
+def forum(current_user, vars):
     errors = list()
     res = db.getCategories()
     if res == -1:
@@ -22,27 +25,27 @@ def forum(session, vars):
             res[i] = (r.id, r.name, r.description, topics)
     
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
     vars['res'] = res
     vars['topics'] = topics or None
     
     return render_template('pages/forum_index.html', vars=vars)
 
-def create_cat(session, vars):
+def create_cat(current_user, vars):
     errors = list()
 
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
 
     return render_template('pages/forum_create_cat_pre.html', vars=vars)
 
-def create_catPOST(session, vars):
+def create_catPOST(current_user, vars):
     errors = list()
 
     cat_name = request.form.get('cat_name')
     cat_description = request.form.get('cat_description')
 
-    if not session['access'] == 'true':
+    if not current_user.is_authenticated:
         errors.append("You must be logged in to create a category.")
     if not cat_name:
         errors.append("The categorie name field must not be empty.")
@@ -58,11 +61,11 @@ def create_catPOST(session, vars):
             db.createCategorie(cat_name, cat_description)
 
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
 
     return render_template('pages/forum_create_cat_post.html', vars=vars)
 
-def create_topic(session, vars):
+def create_topic(current_user, vars):
     errors = list()
     res = db.getCategories()
     if res == -1:
@@ -71,12 +74,12 @@ def create_topic(session, vars):
         errors.append("No categories defined yet.")
 
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
     vars['res'] = res
 
     return render_template('pages/forum_create_topic_pre.html', vars=vars)
 
-def create_topicPOST(session, vars):
+def create_topicPOST(current_user, vars):
     errors = list()
 
     topic_subject = request.form.get('topic_subject')
@@ -94,7 +97,7 @@ def create_topicPOST(session, vars):
         errors.append("The topic message must be at least 3 characters long.")
     if len(post_content) > 2000:
         errors.append("The topic message may not be longer than 2000 characters.")
-    if not session['access'] == 'true':
+    if not current_user.is_authenticated:
         errors.append("You must be logged in.")
     if db.getTopicInCatBySubject(topic_cat, topic_subject) != -1:
         errors.append("The topic already exists in this category.")
@@ -116,11 +119,11 @@ def create_topicPOST(session, vars):
         vars['topic_id'] = topic_id or None
 
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
 
     return render_template('pages/forum_create_topic_post.html', vars=vars)
 
-def category(session, vars):
+def category(current_user, vars):
     errors = list()
 
     cat_id = request.args.get('id','')
@@ -143,13 +146,13 @@ def category(session, vars):
             errors.append("There are no topics in this category yet.")
 
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
     vars['res_cat'] = res_cat
     vars['res_top'] = res_top
     
     return render_template('pages/forum_category.html', vars=vars)
     
-def topic(session, vars):
+def topic(current_user, vars):
     errors = list()
     
     top_id = request.args.get('id','')
@@ -177,18 +180,18 @@ def topic(session, vars):
             vars['res_posts'] = res_posts or None
 
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
     vars['user_id'] = db.getIDFromName(vars["user"])
     vars['reply_content'] = None
 
     return render_template('pages/forum_topic.html', vars=vars)
 
-def topicPOST(session, vars):
+def topicPOST(current_user, vars):
     errors = list()
 
     vars['res_posts'] = None
 
-    if not session['access']:
+    if not current_user.is_authenticated:
         errors.append("You must be signed in to post a reply.")
     
     top_id = request.args.get('id','')
@@ -229,7 +232,7 @@ def topicPOST(session, vars):
         redirect('/topic?id=' + str(top_id) + '#post' + str(post_id))
 
     vars['errors'] = errors
-    vars['access'] = session['access'] or None
+    vars['access'] = current_user.is_authenticated or None
     vars['res_top'] = res_top or None
     vars['reply_content'] = content or ' '
     vars['post_id'] = post_id
@@ -237,10 +240,10 @@ def topicPOST(session, vars):
 
     return render_template('pages/forum_topic.html', vars=vars)
 
-def deletePost(session, postId):
+def deletePost(current_user, postId):
     print ("[LOG] Deleted post #" + str(postId))
     db.deletePostByID(postId)
 
-def deleteTopic(session, topicId):
+def deleteTopic(current_user, topicId):
     print ("[LOG] Deleted topic #" + str(topicId))
     db.deleteTopicByID(topicId)

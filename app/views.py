@@ -3,9 +3,10 @@ from flask import Flask, session, redirect, url_for, render_template, request, f
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+from flask_login import UserMixin, LoginManager, current_user, login_user, logout_user, login_required
 import hashlib
 
-from app import app
+from app import app, lm
 
 import app.database as db
 import app.permissions as perm
@@ -16,18 +17,22 @@ import app.forum as f
 print ('[LOG] Create Tables')
 db.init_db(app)
 
+@lm.user_loader
+def load_user(user_id):
+    return db.getUserByID(user_id)
+
 # Return values:
 # 0 - Error
 # 1 - Success
 # 2 - Login redirect
 # 3 - Denied redirect
 def checkAccess(requiredPermission = '+', redir = True):
-    if session.get('access') == 'true' and session.get('name'):
-        userPermissions = db.getPermissions(session['name'])
+    if current_user.is_authenticated:
+        userPermissions = db.getPermissions(current_user.name)
         if  not (type (userPermissions) == int) and (requiredPermission in userPermissions or ('*' in userPermissions)):
             return 1
         else: return 3
-    if session.get('access') == True and session['access'] == 'true':
+    if current_user.is_authenticated:
         if redir:
             return 3
         else: return 0
@@ -41,8 +46,8 @@ def getNav():
     permissions = perm.getPermissionList()
     sites = nav.getSites()
 
-    if session.get('access') == 'true' and session.get('name'):
-        userPermissions = db.getPermissions(session['name'])
+    if current_user.is_authenticated:
+        userPermissions = db.getPermissions(current_user.name)
         if (type (userPermissions) == int):
             return []
         for key in permissions:
@@ -58,8 +63,8 @@ def getDefaultVars():
     vars['title'] = 'Home'
     vars['active'] = 'Home'
     vars['nav'] = getNav()
-    if session.get('name'):
-        vars['user'] = session['name'] 
+    if current_user.is_authenticated:
+        vars['user'] = current_user.name 
         vars['permissions'] = db.getPermissions(vars['user'])
         vars['userid'] = db.getIDFromName(vars['user'])
         tmpUser = db.getUserByID(vars['userid'])
@@ -117,14 +122,14 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username and password and db.signIn(username, password):
-            session['access'] = 'true'
-            session['name'] = username
-            session['id'] = db.getIDFromName(username)
-            return redirect('/')
-        else:
-            vars['error'] = True
-            errors.append('Login failed.')
+        if username and password:
+            tmpUser = db.signIn(username, password)
+            if tmpUser:
+                login_user(tmpUser)
+                return redirect('/')
+        
+        vars['error'] = True
+        errors.append('Login failed.')
 
         vars['errors'] = errors
         return render_template('pages/login.html', vars=vars)
@@ -158,9 +163,8 @@ def register():
         vars['errors'] = errors
 
         if not errors:
-            db.registerUser(username, password, email)
-            session['access'] = 'true'
-            session['name'] = username
+            tmpUser = db.registerUser(username, password, email)
+            login_user(tmpUser)
 
         if errors:
             print ('[LOG] ' + str(username) + ' requested Access but an error occured')
@@ -175,7 +179,7 @@ def denied():
 	vars['title'] = '403'
 	vars['active'] = ''
 
-	userPermissions = db.getPermissions(session['name'])
+	userPermissions = db.getPermissions(current_user.name)
 	vars['activate'] = False
 	if  (type (userPermissions) == int):
 		vars['activate'] = True
@@ -239,9 +243,7 @@ def adminEditPermissions(id):
 
 @app.route('/logout')
 def logout():
-	session['access'] = 'false'
-	session['name'] = ''
-	session['id'] = ''
+	logout_user()
 	return redirect('/login')
 
 # Forum
@@ -256,7 +258,7 @@ def forum():
     vars = getDefaultVars()
     vars['active'] = 'forum'
     vars['title'] = 'Forum'
-    return f.forum(session, vars)
+    return f.forum(current_user, vars)
 
 @app.route('/create_cat', methods = ['GET', 'POST','DELETE', 'PATCH'])
 def create_cat():
@@ -271,9 +273,9 @@ def create_cat():
     vars['title'] = 'Forum'
 
     if request.method == 'GET':
-        return f.create_cat(session, vars)
+        return f.create_cat(current_user, vars)
     if request.method == 'POST':
-	    return f.create_catPOST(session, vars)
+	    return f.create_catPOST(current_user, vars)
 
 @app.route('/create_topic', methods = ['GET', 'POST','DELETE', 'PATCH'])
 def create_topic():
@@ -288,9 +290,9 @@ def create_topic():
     vars['title'] = 'Forum'
 
     if request.method == 'GET':
-        return f.create_topic(session, vars)
+        return f.create_topic(current_user, vars)
     if request.method == 'POST':
-	    return f.create_topicPOST(session, vars)
+	    return f.create_topicPOST(current_user, vars)
 
 @app.route('/category', methods = ['GET', 'POST','DELETE', 'PATCH'])
 def category():
@@ -303,7 +305,7 @@ def category():
     vars = getDefaultVars()
     vars['active'] = 'forum'
     vars['title'] = 'Forum'
-    return f.category(session, vars)
+    return f.category(current_user, vars)
 
 @app.route('/topic', methods = ['GET', 'POST','DELETE', 'PATCH'])
 def topic():
@@ -318,9 +320,9 @@ def topic():
     vars['title'] = 'Forum'
 
     if request.method == 'GET':
-        return f.topic(session, vars)
+        return f.topic(current_user, vars)
     if request.method == 'POST':
-	    return f.topicPOST(session, vars)
+	    return f.topicPOST(current_user, vars)
 
 @app.route('/delete/post/<topicId>/<postId>')
 def deletePost(topicId, postId):
@@ -347,7 +349,7 @@ def deletePostConfirm(topicId, postId):
         vars = getDefaultVars()
         return render_template('pages/access-denied.html', vars=vars)
         
-    f.deletePost(session, postId)
+    f.deletePost(current_user, postId)
     return redirect('/topic?id=' + str(topicId))
 
 @app.route('/delete/topic/<topicId>')
@@ -375,7 +377,7 @@ def deleteTopicConfirm(topicId):
         vars = getDefaultVars()
         return render_template('pages/access-denied.html', vars=vars)
 
-    f.deleteTopic(session, topicId)
+    f.deleteTopic(current_user, topicId)
     return redirect('/forum')
 	
 # Errors
