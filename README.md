@@ -23,19 +23,19 @@ E.g. by using `venv`: `python -m venv env`
 
 ### Enter the virtual environment:
 
-`source env/bin/activate`
+`source env/bin/activate` <br>
 If you use Windows, run `.\env\Scripts\activate`
 
 ### Install the required dependencies inside the virtual environment
 `pip3 install -r requirements.txt`
 
 ### Run the server
-`python3 app.py dev` for the development server
-`python3 app.py` for the production server
+`python3 app.py dev` for the development server <br>
+`python3 app.py` for the production server <br>
 On the first run, you will be asked to register an **Admin** user. 
 
 ### If CSS has been changed
-`python -m scss < static/styles/styles.scss -o static/styles/styles-min.css -I static/styles/`
+`python -m scss < static/styles/styles.scss -o static/styles/styles-min.css -I static/styles/` <br>
 If you use Windows, run `build-css.bat`
 
 ## Contributing to the project
