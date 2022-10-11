@@ -1,7 +1,4 @@
 from flask import redirect, url_for, render_template, request, flash
-from flask_login import UserMixin, LoginManager, current_user, login_user, logout_user, login_required
-
-
 
 import app.database as db
 
