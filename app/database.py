@@ -22,19 +22,19 @@ class Users(db.Model, UserMixin):
     permissions = db.Column(db.String(255))
     avatar = db.Column(db.String(255))
 
-class Categories(db.Model, UserMixin):
+class Categories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True)
     description = db.Column(db.String(255))
 
-class Topics(db.Model, UserMixin):
+class Topics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(255))
     date = db.Column(db.DateTime, default=datetime.now())
     category_id = db.Column(db.Integer) # foreign key to Category
     author_id = db.Column(db.Integer) # foreign key to User
 
-class Posts(db.Model, UserMixin):
+class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text)
     date = db.Column(db.DateTime, default=datetime.now())
