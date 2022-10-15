@@ -8,6 +8,7 @@ app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///../database/main.sqlt'
 app.config['SECRET_KEY'] = 'example_key'
+app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
 app.config.from_object(__name__)
 
 # db will be initialized later
