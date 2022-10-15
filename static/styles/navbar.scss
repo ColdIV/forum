@@ -60,17 +60,36 @@
 
 /* Desktop Styles */
 @media (min-width: 1200px) {
-.navbar {
-    max-height: 60px;
+    .navbar {
+        max-height: 60px;
 
-    ul {
-        padding-left: 0;
-        display: inline-block;
+        ul {
+            padding-left: 0;
+            display: inline-block;
 
-        li {
-            display: inline;
-            padding: 0 1rem 0 0;
+            li {
+                display: inline;
+                padding: 0 1rem 0 0;
+            }
         }
     }
 }
+
+.action-required {
+    position: relative;
+}
+
+.action-required[data-action]::after {
+    content: attr(data-action);
+    position: absolute;
+    top: -5px;
+    right: -12px;
+    border-radius: 50%;
+    width: 13px;
+    height: 13px;
+    text-align: center;
+    line-height: 13px;
+    font-weight: bold;
+    font-size: 10px;
+    font-family: monospace;
 }

@@ -4,6 +4,9 @@ from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from flask_login import UserMixin, LoginManager, current_user, login_user, logout_user, login_required
+from flask_admin import Admin , AdminIndexView, expose
+from flask_admin.menu import MenuLink
+from flask_admin.contrib.sqla import ModelView
 import hashlib
 
 from app import app, lm
@@ -20,6 +23,62 @@ db.init_db(app)
 @lm.user_loader
 def load_user(user_id):
     return db.getUserByID(user_id)
+
+
+class DefaultView(ModelView):
+    edit_template = 'admin/edit_template.html'
+    create_template = 'admin/create_template.html'
+    list_template = 'admin/list_template.html'
+
+    def is_accessible(self):
+        has_permission = checkAccess('a', False)
+        return has_permission == 1
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('login'))
+
+class AdminDashboard(AdminIndexView):
+    @expose('/', methods=('GET', 'POST'))
+    def index_view(self):
+        return self.render('admin/index.html')
+
+    def render(self, template, **kwargs):
+        result = checkAccess('a')
+        if result == 2: return redirect('/login')
+        elif result == 3: 
+            kwargs = getDefaultVars()
+            return render_template('pages/access-denied.html', vars=vars)
+            
+        permissions = perm.getPermissionList()
+        errors = list()
+        kwargs['vars'] = getDefaultVars()
+
+        kwargs['vars']['headline'] = 'Admin'
+        kwargs['vars']['title'] = 'Admin'
+            
+        kwargs['vars']['users'] = db.getUsers()
+
+        kwargs['vars']['errors'] = errors
+        kwargs['vars']['active'] = 'admin'
+        kwargs['vars']['permissions'] = permissions
+
+        print ('[LOG] ' + kwargs['vars']['user'] + ' looked at the Admin page')
+        return super(AdminIndexView, self).render('admin/index.html', **kwargs)
+
+    def is_accessible(self):
+        has_permission = checkAccess('a', False)
+        return has_permission == 1
+    
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('login'))
+
+admin = Admin(app, index_view=AdminDashboard(), template_mode='bootstrap4')
+admin.add_view(DefaultView(db.Users, db.db.session))
+admin.add_view(DefaultView(db.Categories, db.db.session))
+admin.add_view(DefaultView(db.Topics, db.db.session))
+admin.add_view(DefaultView(db.Posts, db.db.session))
+admin.add_link(MenuLink(name='Back to website', category='', url='/'))
+
 
 # Return values:
 # 0 - Error
@@ -185,61 +244,6 @@ def denied():
 		vars['activate'] = True
 	
 	return render_template('pages/access-denied.html', vars=vars)
-
-@app.route('/admin')
-def admin():
-    result = checkAccess('a')
-    if result == 2: return redirect('/login')
-    elif result == 3: 
-        vars = getDefaultVars()
-        return render_template('pages/access-denied.html', vars=vars)
-           
-    permissions = perm.getPermissionList()
-    errors = list()
-    vars = getDefaultVars()
-
-    vars['headline'] = 'Admin'
-    vars['title'] = 'Admin'
-        
-    vars['users'] = db.getUsers()
-
-    vars['errors'] = errors
-    vars['active'] = 'admin'
-    vars['permissions'] = permissions
-
-    print ('[LOG] ' + vars['user'] + ' looked at the Admin page')
-    return render_template('pages/admin.html', vars=vars)
-
-@app.route('/admin/edit/permissions/<id>', methods = ['GET', 'POST','DELETE', 'PATCH'])
-def adminEditPermissions(id):
-    result = checkAccess('a')
-    if result == 2: return redirect('/login')
-    elif result == 3: 
-        vars = getDefaultVars()
-        return render_template('pages/access-denied.html', vars=vars)
-
-    if request.method == 'GET':
-        permissions = perm.getPermissionList()
-        errors = list()
-        vars = getDefaultVars()
-
-        vars['headline'] = 'Admin'
-        vars['title'] = 'Admin'
-
-        vars['selectedUser'] = db.getUserByID(id)
-
-        vars['errors'] = errors
-        vars['active'] = 'admin'
-        vars['permissions'] = permissions
-        return render_template('pages/admin_edit_permissions.html', vars=vars)
-    
-    if request.method == 'POST':
-        permissions = request.form.get('permissions')
-
-        db.updatePermissions(id, permissions)
-        print ('[LOG] Permissions for User with ID ' + str(id) + ' have been updated')
-        
-        return redirect('/admin')
 
 @app.route('/logout')
 def logout():

@@ -1,0 +1,12 @@
+{% extends 'admin/model/edit.html' %}
+{% block head_css %}
+    {{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static',filename='images/favicon.png') }}"/>
+	<link rel="stylesheet" href="{{ url_for('static',filename='styles/admin-min.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        {{ super() }}
+    </div>
+{% endblock %}
