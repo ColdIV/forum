@@ -17,6 +17,12 @@ Configure the styling of the forum, especially the [logo](static/images/logo.png
 ### Get the code
 `git clone https://github.com/ColdIV/forum.git` and enter the directory.
 
+### Run with docker
+- `docker compose up -d` to run
+- `docker compose down` to stop
+
+or setup as below.
+
 ### Create a virtual development environment
 
 E.g. by using `venv`: `python -m venv env`
@@ -34,7 +40,7 @@ If you use Windows, run `.\env\Scripts\activate`
 `python3 app.py` for the production server <br>
 On the first run, you will be asked to register an **Admin** user. 
 
-### If CSS has been changed
+## Build CSS
 `python -m scss < static/styles/styles.scss -o static/styles/styles-min.css -I static/styles/` <br>
 If you use Windows, run `build-css.bat`
 
