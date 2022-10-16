@@ -18,7 +18,7 @@ Configure the styling of the forum, especially the [logo](static/images/logo.png
 `git clone https://github.com/ColdIV/forum.git` and enter the directory.
 
 ### Run with docker
-- `docker compose up -d` to run
+- `docker compose up -d` to run production server on port 8080
 - `docker compose down` to stop
 
 or setup as below.
