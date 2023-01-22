@@ -36,7 +36,9 @@ On the first run, you will be asked to register an **Admin** user.
 
 ### If CSS has been changed
 `python -m scss < static/styles/styles.scss -o static/styles/styles-min.css -I static/styles/` <br>
-If you use Windows, run `build-css.bat`
+For changes in admin.scss: <br>
+`python -m scss < static/styles/admin.scss -o static/styles/admin-min.css -I static/styles/` <br>
+If you use Windows, run `build-css.bat` for both.
 
 ## Contributing to the project
 

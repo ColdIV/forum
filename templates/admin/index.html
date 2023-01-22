@@ -1,0 +1,62 @@
+{% extends 'admin/master.html' %}
+{% block head_css %}
+    {{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static',filename='images/favicon.png') }}"/>
+	<link rel="stylesheet" href="{{ url_for('static',filename='styles/admin-min.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <h2 class="m-1 text-center">Users</h2>
+                {% for u in vars['users']: %}
+                    {% if 'a' in u.permissions: %}
+                        {% set adminColor = 'text-success' %}
+                    {% else: %}
+                        {% set adminColor = '' %}
+                    {% endif %}
+                    <div class="border-dark bg-light text-dark py-2 mb-2">
+                        <div class="px-1 d-flex justify-content-between">
+                            <strong>Name</strong>
+                            <div class="{{adminColor}}">
+                                {{u.name}}
+                            </div>
+                        </div>
+                        <div class="px-1 d-flex justify-content-between">
+                            <strong>E-Mail</strong>
+                            <div>
+                                {{u.email}}
+                            </div>
+                        </div>
+
+                        <div class="px-1 d-flex justify-content-between">
+                            <strong>Member since</strong>
+                            <div>
+                                {{u.date}}
+                            </div>
+                        </div>
+                        {% if u.permissions: %}
+                            <div class="pl-1 d-flex justify-content-between">
+                        {% else: %}
+                            <div class="pl-1 text-danger d-flex justify-content-between">
+                        {% endif %}
+                        <strong>Permissions</strong>
+                        <div class="pr-1 d-flex justify-content-between">
+                            <div>
+                                {% if u.permissions: %}
+                                {{u.permissions}}
+                                {% else: %}
+                                <a class="unstyled-link text-danger" href="users/edit/?id={{u.id}}">Add permissions</a>
+                                {% endif %}
+                            </div>
+                            <a class="unstyled-link text-dark pl-1" href="users/edit/?id={{u.id}}">&#9998;</a>
+                        </div>
+                    </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% include 'admin/permissions.html' %}
+        </div>
+    </div>
+{% endblock %}
