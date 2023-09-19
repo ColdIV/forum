@@ -1,0 +1,7 @@
+version: "3.8.1"
+services:
+  app:
+    build: .
+    command: run.py
+    ports:
+      - "8080:8080"
