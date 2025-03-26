@@ -15,5 +15,5 @@ MarkupSafe==2.1.1
 SQLAlchemy==1.4.41
 waitress==2.1.2
 Werkzeug==2.2.2
-WTForms==3.2.1
+WTForms==3.1.2
 zipp==3.9.0
