@@ -1,6 +1,14 @@
 <div class="sidebar d-flex flex-column mb-1 pb-1">
     <div class="sticky">
         <div class="px-2 pb-2">
+            {% if vars['user'] == None: %}
+                <h3>Login</h3>
+                <form action="/login" method="post">
+                    <input type="text" placeholder="Username" name="username" required><br>
+                    <input type="password" placeholder="Password" name="password" required><br>
+                    <input type="submit" value="Submit" class="btn-primary">
+                </form>
+            {% else: %}
             <h3>Profile</h3>
             <div class="d-flex align-items-center">
                 <img src="{{vars['avatar']}}" width="80px" height="80px">
@@ -15,6 +23,7 @@
                     <div class="fill"></div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>

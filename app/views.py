@@ -122,6 +122,9 @@ def getDefaultVars():
     vars['title'] = 'Home'
     vars['active'] = 'Home'
     vars['nav'] = getNav()
+    vars['user'] = None
+    vars['permissions'] = []
+    vars['userid'] = None
     if current_user.is_authenticated:
         vars['user'] = current_user.name 
         vars['permissions'] = db.getPermissions(vars['user'])
@@ -146,10 +149,10 @@ def home():
 @app.route('/')
 def index():
     result = checkAccess()
-    if result == 2: return redirect('/login')
-    elif result == 3: 
-        vars = getDefaultVars()
-        return render_template('pages/access-denied.html', vars=vars)
+    #if result == 2: return redirect('/login')
+    #elif result == 3: 
+    #    vars = getDefaultVars()
+    #    return render_template('pages/access-denied.html', vars=vars)
 
     vars = getDefaultVars()
     vars['title'] = 'Home'
